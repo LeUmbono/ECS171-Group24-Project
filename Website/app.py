@@ -1,3 +1,12 @@
+import warnings
+
+# To ignore all deprecation warnings
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+warnings.filterwarnings("ignore", category=FutureWarning)
+
+import os
+os.environ['FLASK_ENV'] = 'production'
+
 from flask import Flask, request, jsonify, render_template
 from model import predict
 import webbrowser
