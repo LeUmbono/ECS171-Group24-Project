@@ -17,8 +17,6 @@ def make_prediction():
         # Convert form data to a dictionary
         input_features = request.form.to_dict()
 
-        print(input_features)
-
         # Convert numeric fields from string to float
         numeric_fields = ['Age', 'RestingBP', 'Cholesterol', 'FastingBS', 'MaxHR', 'Oldpeak']
         for field in numeric_fields:

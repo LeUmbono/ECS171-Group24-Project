@@ -124,14 +124,7 @@ def predict(input_data):
     try:
         processed_data = process_input35(input_data)
 
-        # debugging
-        for index, row in processed_data.iterrows():
-            # Iterate over each column in the row
-            for col in processed_data.columns:
-                print(f"Row {index}, Column {col}: {row[col]}")
-
         prediction = model.predict(processed_data)
-        print(prediction)
         return prediction[0]  # Adjust as necessary based on your model's output format
     except Exception as e:
         # Log the exception details here for debugging
