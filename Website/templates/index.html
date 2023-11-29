@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Heart Disease Prediction</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-image: url('/static/heart.png');
+            background-size: cover;
+            color: #fff;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        label {
+            flex: 0 0 40%;  /* Adjusted label width for better alignment */
+            text-align: left;
+            margin: auto 0;
+        }
+
+        input[type=text], input[type=number] {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-left: 10px;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        #predictionResult {
+            margin-top: 15px;
+            font-size: 1.2em;
+            color: yellow;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Heart Disease Prediction</h1>
+        <form id="predictionForm">
+            <div class="form-group">
+                <label for="age">Age:</label>
+                <input type="number" id="age" name="Age">
+            </div>
+
+            <div class="form-group">
+                <label for="sex">Sex (M/F):</label>
+                <input type="text" id="sex" name="Sex">
+            </div>
+
+            <div class="form-group">
+                <label for="chestPainType">Chest Pain Type:</label>
+                <input type="text" id="chestPainType" name="ChestPainType">
+            </div>
+
+            <div class="form-group">
+                <label for="restingBP">Resting Blood Pressure:</label>
+                <input type="number" id="restingBP" name="RestingBP">
+            </div>
+
+            <div class="form-group">
+                <label for="cholesterol">Cholesterol:</label>
+                <input type="number" id="cholesterol" name="Cholesterol">
+            </div>
+
+            <div class="form-group">
+                <label for="fastingBS">Fasting Blood Sugar:</label>
+                <input type="number" id="fastingBS" name="FastingBS">
+            </div>
+
+            <div class="form-group">
+                <label for="restingECG">Resting ECG:</label>
+                <input type="text" id="restingECG" name="RestingECG">
+            </div>
+
+            <div class="form-group">
+                <label for="maxHR">Max Heart Rate:</label>
+                <input type="number" id="maxHR" name="MaxHR">
+            </div>
+
+            <div class="form-group">
+                <label for="exerciseAngina">Exercise Induced Angina (Y/N):</label>
+                <input type="text" id="exerciseAngina" name="ExerciseAngina">
+            </div>
+
+            <div class="form-group">
+                <label for="oldpeak">Oldpeak:</label>
+                <input type="number" id="oldpeak" name="Oldpeak">
+            </div>
+
+            <div class="form-group">
+                <label for="stSlope">ST Slope:</label>
+                <input type="text" id="stSlope" name="ST_Slope">
+            </div>
+
+            <button type="button" onclick="makePrediction()">Predict</button>
+            <button type="button" onclick="fillRandomData()">Fill Random Data</button>
+            <button type="button" onclick="clearForm()">Clear Form</button>
+        </form>
+        <div id="predictionResult"></div>
+    </div>
+
+    
+
+    <script>
+        function makePrediction() {
+            var form = document.getElementById('predictionForm');
+            var formData = new FormData(form);
+            fetch('/predict', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('predictionResult').innerHTML = 'Prediction: ' + data.prediction;
+            });
+        }
+
+        function fillRandomData() {
+        fetch('/get-random-data')
+            .then(response => response.json())
+            .then(data => {
+                // Check for null or undefined, but allow 0
+                document.getElementById('age').value = data.Age !== null && data.Age !== undefined ? data.Age : '';
+                document.getElementById('sex').value = data.Sex !== null && data.Sex !== undefined ? data.Sex : '';
+                document.getElementById('chestPainType').value = data.ChestPainType !== null && data.ChestPainType !== undefined ? data.ChestPainType : '';
+                document.getElementById('restingBP').value = data.RestingBP !== null && data.RestingBP !== undefined ? data.RestingBP : '';
+                document.getElementById('cholesterol').value = data.Cholesterol !== null && data.Cholesterol !== undefined ? data.Cholesterol : '';
+                document.getElementById('fastingBS').value = data.FastingBS !== null && data.FastingBS !== undefined ? data.FastingBS : '';
+                document.getElementById('restingECG').value = data.RestingECG !== null && data.RestingECG !== undefined ? data.RestingECG : '';
+                document.getElementById('maxHR').value = data.MaxHR !== null && data.MaxHR !== undefined ? data.MaxHR : '';
+                document.getElementById('exerciseAngina').value = data.ExerciseAngina !== null && data.ExerciseAngina !== undefined ? data.ExerciseAngina : '';
+                document.getElementById('oldpeak').value = data.Oldpeak !== null && data.Oldpeak !== undefined ? data.Oldpeak : '';
+                document.getElementById('stSlope').value = data.ST_Slope !== null && data.ST_Slope !== undefined ? data.ST_Slope : '';
+            })
+            .catch(error => console.error('Error fetching random data:', error));
+    }
+
+        function clearForm() {
+            // Clear all form fields
+            document.getElementById('age').value = '';
+            document.getElementById('sex').value = '';
+            document.getElementById('chestPainType').value = '';
+            document.getElementById('restingBP').value = '';
+            document.getElementById('cholesterol').value = '';
+            document.getElementById('fastingBS').value = '';
+            document.getElementById('restingECG').value = '';
+            document.getElementById('maxHR').value = '';
+            document.getElementById('exerciseAngina').value = '';
+            document.getElementById('oldpeak').value = '';
+            document.getElementById('stSlope').value = '';
+            // Add additional lines here for each form field you have
+        }
+    </script>
+</body>
+</html>
