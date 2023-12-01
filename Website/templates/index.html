@@ -63,9 +63,39 @@
             font-size: 1.2em;
             color: yellow;
         }
+
+        #matchCounter {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .counter {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+        }
+        .counter + .counter {
+            top: 60px;
+        }
+        #accuracy {
+            top: 100px;
+        }
+
     </style>
 </head>
 <body>
+    <div id="matchCounter" class="counter">Matches: 0</div>
+    <div id="nonMatchCounter" class="counter">Mismatches: 0</div>
+    <div id="accuracy" class="counter">Accuracy: 0%</div>
     <div class="container">
         <h1>Heart Disease Prediction</h1>
         <form id="predictionForm">
@@ -127,13 +157,17 @@
             <button type="button" onclick="makePrediction()">Predict</button>
             <button type="button" onclick="fillRandomData()">Fill Random Data</button>
             <button type="button" onclick="clearForm()">Clear Form</button>
+            <button id="autoTestButton" onclick="automateTesting(1000)">Automate Testing (1000 times)</button>
         </form>
         <div id="predictionResult"></div>
     </div>
 
-    
-
     <script>
+        var actualHeartDiseaseResult = null;
+        var matchCounter = 0;
+        var nonMatchCounter = 0;
+        var totalPredictions = 0;
+
         function makePrediction() {
             var form = document.getElementById('predictionForm');
             var formData = new FormData(form);
@@ -143,29 +177,57 @@
             })
             .then(response => response.json())
             .then(data => {
-                document.getElementById('predictionResult').innerHTML = 'Prediction: ' + data.prediction;
+                var resultText = 'Prediction: ' + data.prediction;
+                totalPredictions++;
+                
+                if (actualHeartDiseaseResult !== null) {
+                    resultText += '<br>Actual Result: ' + actualHeartDiseaseResult;
+
+                    // Compare and update counters
+                    if (data.prediction.toString() === actualHeartDiseaseResult.toString()) {
+                        matchCounter++;
+                    } else {
+                        nonMatchCounter++;
+                    }
+
+                    // Update the match and non-match counters
+                    document.getElementById('matchCounter').innerHTML = 'Matches: ' + matchCounter;
+                    document.getElementById('nonMatchCounter').innerHTML = 'Mismatches: ' + nonMatchCounter;
+
+                    // Calculate and display accuracy
+                    var accuracy = (matchCounter / totalPredictions) * 100;
+                    document.getElementById('accuracy').innerHTML = 'Accuracy: ' + accuracy.toFixed(2) + '%';
+                }
+                document.getElementById('predictionResult').innerHTML = resultText;
             });
         }
 
         function fillRandomData() {
-        fetch('/get-random-data')
-            .then(response => response.json())
-            .then(data => {
-                // Check for null or undefined, but allow 0
-                document.getElementById('age').value = data.Age !== null && data.Age !== undefined ? data.Age : '';
-                document.getElementById('sex').value = data.Sex !== null && data.Sex !== undefined ? data.Sex : '';
-                document.getElementById('chestPainType').value = data.ChestPainType !== null && data.ChestPainType !== undefined ? data.ChestPainType : '';
-                document.getElementById('restingBP').value = data.RestingBP !== null && data.RestingBP !== undefined ? data.RestingBP : '';
-                document.getElementById('cholesterol').value = data.Cholesterol !== null && data.Cholesterol !== undefined ? data.Cholesterol : '';
-                document.getElementById('fastingBS').value = data.FastingBS !== null && data.FastingBS !== undefined ? data.FastingBS : '';
-                document.getElementById('restingECG').value = data.RestingECG !== null && data.RestingECG !== undefined ? data.RestingECG : '';
-                document.getElementById('maxHR').value = data.MaxHR !== null && data.MaxHR !== undefined ? data.MaxHR : '';
-                document.getElementById('exerciseAngina').value = data.ExerciseAngina !== null && data.ExerciseAngina !== undefined ? data.ExerciseAngina : '';
-                document.getElementById('oldpeak').value = data.Oldpeak !== null && data.Oldpeak !== undefined ? data.Oldpeak : '';
-                document.getElementById('stSlope').value = data.ST_Slope !== null && data.ST_Slope !== undefined ? data.ST_Slope : '';
-            })
-            .catch(error => console.error('Error fetching random data:', error));
-    }
+            return new Promise((resolve, reject) => {
+                fetch('/get-random-data')
+                    .then(response => response.json())
+                    .then(data => {
+                        // Check for null or undefined, but allow 0
+                        document.getElementById('age').value = data.Age !== null && data.Age !== undefined ? data.Age : '';
+                        document.getElementById('sex').value = data.Sex !== null && data.Sex !== undefined ? data.Sex : '';
+                        document.getElementById('chestPainType').value = data.ChestPainType !== null && data.ChestPainType !== undefined ? data.ChestPainType : '';
+                        document.getElementById('restingBP').value = data.RestingBP !== null && data.RestingBP !== undefined ? data.RestingBP : '';
+                        document.getElementById('cholesterol').value = data.Cholesterol !== null && data.Cholesterol !== undefined ? data.Cholesterol : '';
+                        document.getElementById('fastingBS').value = data.FastingBS !== null && data.FastingBS !== undefined ? data.FastingBS : '';
+                        document.getElementById('restingECG').value = data.RestingECG !== null && data.RestingECG !== undefined ? data.RestingECG : '';
+                        document.getElementById('maxHR').value = data.MaxHR !== null && data.MaxHR !== undefined ? data.MaxHR : '';
+                        document.getElementById('exerciseAngina').value = data.ExerciseAngina !== null && data.ExerciseAngina !== undefined ? data.ExerciseAngina : '';
+                        document.getElementById('oldpeak').value = data.Oldpeak !== null && data.Oldpeak !== undefined ? data.Oldpeak : '';
+                        document.getElementById('stSlope').value = data.ST_Slope !== null && data.ST_Slope !== undefined ? data.ST_Slope : '';
+                        actualHeartDiseaseResult = data.HeartDisease;
+                        resolve();
+                    })
+                    .catch(error => {
+                        console.error('Error fetching random data:', error);
+                        reject(error);
+                    });
+            });
+        }
 
         function clearForm() {
             // Clear all form fields
@@ -180,7 +242,29 @@
             document.getElementById('exerciseAngina').value = '';
             document.getElementById('oldpeak').value = '';
             document.getElementById('stSlope').value = '';
-            // Add additional lines here for each form field you have
+            actualHeartDiseaseResult = null;
+        }
+
+        function automateTesting(iterations) {
+            let count = 0;
+
+            function runIteration() {
+                if (count < iterations) {
+                    fillRandomData().then(() => {
+                        setTimeout(() => {
+                            makePrediction();
+                            count++;
+                            if (count < iterations) {
+                                setTimeout(runIteration, 10); // Adjust delay as needed
+                            }
+                        }, 10); // Adjust delay for prediction to be made
+                    }).catch(error => {
+                        console.error('Error during automation:', error);
+                    });
+                }
+            }
+
+            runIteration();
         }
     </script>
 </body>

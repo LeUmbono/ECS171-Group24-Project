@@ -4,7 +4,7 @@ import joblib
 # Load the trained model
 def load_model():
     try:
-        model = joblib.load('model35.pkl')
+        model = joblib.load('model25.pkl')
         return model
     except FileNotFoundError:
         raise Exception("Model file not found. Please check the path and file name.")
@@ -122,7 +122,7 @@ model = load_model()
 # Function to make a prediction
 def predict(input_data):
     try:
-        processed_data = process_input35(input_data)
+        processed_data = process_input25(input_data)
 
         prediction = model.predict(processed_data)
         return prediction[0]  # Adjust as necessary based on your model's output format
