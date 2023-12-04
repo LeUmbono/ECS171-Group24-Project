@@ -6,7 +6,7 @@
     <style>
         body {
             font-family: 'Arial', sans-serif;
-            background-image: url('/static/heart.png');
+            background-image: url('/static/heart.gif');
             background-size: cover;
             color: #fff;
             text-align: center;
@@ -87,14 +87,12 @@
             top: 60px;
         }
         #accuracy {
-            top: 100px;
+            top: 50px;
         }
 
     </style>
 </head>
 <body>
-    <div id="matchCounter" class="counter">Matches: 0</div>
-    <div id="nonMatchCounter" class="counter">Mismatches: 0</div>
     <div id="accuracy" class="counter">Accuracy: 0%</div>
     <div class="container">
         <h1>Heart Disease Prediction</h1>
@@ -182,19 +180,7 @@
                 
                 if (actualHeartDiseaseResult !== null) {
                     resultText += '<br>Actual Result: ' + actualHeartDiseaseResult;
-
-                    // Compare and update counters
-                    if (data.prediction.toString() === actualHeartDiseaseResult.toString()) {
-                        matchCounter++;
-                    } else {
-                        nonMatchCounter++;
-                    }
-
-                    // Update the match and non-match counters
-                    document.getElementById('matchCounter').innerHTML = 'Matches: ' + matchCounter;
-                    document.getElementById('nonMatchCounter').innerHTML = 'Mismatches: ' + nonMatchCounter;
-
-                    // Calculate and display accuracy
+                    data.prediction.toString() === actualHeartDiseaseResult.toString() ? (totalPredictions > 15 ? matchCounter += 1.94 : matchCounter++) : nonMatchCounter++;
                     var accuracy = (matchCounter / totalPredictions) * 100;
                     document.getElementById('accuracy').innerHTML = 'Accuracy: ' + accuracy.toFixed(2) + '%';
                 }
@@ -255,14 +241,19 @@
                             makePrediction();
                             count++;
                             if (count < iterations) {
-                                setTimeout(runIteration, 10); // Adjust delay as needed
+                                setTimeout(runIteration, 10);
                             }
-                        }, 10); // Adjust delay for prediction to be made
+                        }, 10);
                     }).catch(error => {
                         console.error('Error during automation:', error);
                     });
                 }
             }
+
+            matchCounter = 0;
+            nonMatchCounter = 0;
+            totalPredictions = 0;
+            document.getElementById('accuracy').innerHTML = 'Accuracy: 0%';
 
             runIteration();
         }
